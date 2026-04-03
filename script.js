@@ -16,20 +16,20 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ✅ Delete project function
+// Delete project function
 window.deleteProject = async function(id) {
     if(confirm("Are you sure you want to delete this project?")) {
         const docRef = doc(db, "projects", id);
         await deleteDoc(docRef);
-        displayProjects(); // list refresh
+        displayProjects();
     }
 };
 
-// ✅ Add Project function
+// Add Project function
 window.addProject = async function () {
-    let name = document.getElementById("projectName").value.trim();
-    let desc = document.getElementById("projectDesc").value.trim();
-    let image = document.getElementById("projectImage").value.trim();
+    const name = document.getElementById("projectName").value.trim();
+    const desc = document.getElementById("projectDesc").value.trim();
+    const image = document.getElementById("projectImage").value.trim();
 
     if (!name || !desc || !image) {
         alert("Please fill all fields including image URL!");
@@ -42,7 +42,7 @@ window.addProject = async function () {
         image: image
     });
 
-    // Clear input fields after adding
+    // Clear inputs after adding
     document.getElementById("projectName").value = "";
     document.getElementById("projectDesc").value = "";
     document.getElementById("projectImage").value = "";
@@ -50,27 +50,24 @@ window.addProject = async function () {
     displayProjects();
 };
 
-// ✅ Display projects
+// Display all projects
 async function displayProjects() {
-    let list = document.getElementById("projectList");
+    const list = document.getElementById("projectList");
     list.innerHTML = "";
 
     const data = await getDocs(collection(db, "projects"));
 
-    data.forEach((doc) => {
-        let p = doc.data();
-        let id = doc.id;
+    data.forEach((docItem) => {
+        const p = docItem.data();
+        const id = docItem.id;
 
-        let div = document.createElement("div");
-        div.style.border = "1px solid #ccc";
-        div.style.padding = "10px";
-        div.style.marginBottom = "10px";
-        div.style.borderRadius = "5px";
+        const div = document.createElement("div");
+        div.className = "project-card";
 
         div.innerHTML = `
+            <img src="${p.image}" alt="${p.name}">
             <h3>${p.name}</h3>
             <p>${p.desc}</p>
-            <img src="${p.image}" width="200" style="display:block; margin-bottom:10px;">
             <button onclick="deleteProject('${id}')">Delete</button>
         `;
 
@@ -78,5 +75,5 @@ async function displayProjects() {
     });
 }
 
-// Load data on page start
+// Load projects on page start
 displayProjects();
