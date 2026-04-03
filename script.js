@@ -16,19 +16,21 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ✅ IMPORTANT: global function
+// ✅ Updated function with image
 window.addProject = async function () {
     let name = document.getElementById("projectName").value;
     let desc = document.getElementById("projectDesc").value;
+    let image = document.getElementById("projectImage").value;
 
-    if (!name || !desc) {
+    if (!name || !desc || !image) {
         alert("Fill all fields");
         return;
     }
 
     await addDoc(collection(db, "projects"), {
         name: name,
-        desc: desc
+        desc: desc,
+        image: image
     });
 
     displayProjects();
@@ -48,6 +50,7 @@ async function displayProjects() {
         div.innerHTML = `
             <h3>${p.name}</h3>
             <p>${p.desc}</p>
+            <img src="${p.image}" width="200">
         `;
 
         list.appendChild(div);
