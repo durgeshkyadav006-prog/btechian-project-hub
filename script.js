@@ -1,6 +1,6 @@
 // Firebase import
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 // Firebase config
 const firebaseConfig = {
@@ -16,14 +16,23 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ✅ Updated function with image
+// ✅ Delete project function
+window.deleteProject = async function(id) {
+    if(confirm("Are you sure you want to delete this project?")) {
+        const docRef = doc(db, "projects", id);
+        await deleteDoc(docRef);
+        displayProjects(); // list refresh
+    }
+};
+
+// ✅ Add Project function
 window.addProject = async function () {
-    let name = document.getElementById("projectName").value;
-    let desc = document.getElementById("projectDesc").value;
-    let image = document.getElementById("projectImage").value;
+    let name = document.getElementById("projectName").value.trim();
+    let desc = document.getElementById("projectDesc").value.trim();
+    let image = document.getElementById("projectImage").value.trim();
 
     if (!name || !desc || !image) {
-        alert("Fill all fields");
+        alert("Please fill all fields including image URL!");
         return;
     }
 
@@ -33,10 +42,15 @@ window.addProject = async function () {
         image: image
     });
 
+    // Clear input fields after adding
+    document.getElementById("projectName").value = "";
+    document.getElementById("projectDesc").value = "";
+    document.getElementById("projectImage").value = "";
+
     displayProjects();
 };
 
-// Show data
+// ✅ Display projects
 async function displayProjects() {
     let list = document.getElementById("projectList");
     list.innerHTML = "";
@@ -45,17 +59,24 @@ async function displayProjects() {
 
     data.forEach((doc) => {
         let p = doc.data();
+        let id = doc.id;
 
         let div = document.createElement("div");
+        div.style.border = "1px solid #ccc";
+        div.style.padding = "10px";
+        div.style.marginBottom = "10px";
+        div.style.borderRadius = "5px";
+
         div.innerHTML = `
             <h3>${p.name}</h3>
             <p>${p.desc}</p>
-            <img src="${p.image}" width="200">
+            <img src="${p.image}" width="200" style="display:block; margin-bottom:10px;">
+            <button onclick="deleteProject('${id}')">Delete</button>
         `;
 
         list.appendChild(div);
     });
 }
 
-// Load data on start
+// Load data on page start
 displayProjects();
